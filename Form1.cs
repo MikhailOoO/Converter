@@ -8,6 +8,7 @@ using System.Threading;
 using System.Drawing;
 using System.Windows.Controls;
 using ToolTip = System.Windows.Forms.ToolTip;
+using System.ComponentModel;
 
 namespace WindowsFormsApplication1
 {
@@ -44,6 +45,9 @@ namespace WindowsFormsApplication1
         private List<string> tempListAll = new List<string>();
         private List<string> tempList2All = new List<string>();
         private List<string> tempList3All = new List<string>();
+        private string tempDate;
+        private string[] tempWeatherFromStations;
+        private string[] fileEntries;
 
         private void closeAplication()
         {
@@ -78,9 +82,10 @@ namespace WindowsFormsApplication1
         private void Form1_Load(object sender, EventArgs e)
         {
             if (errorFlag) closeAplication();
+            progressBar1.Step = 1;
             ToolTip toolTip1 = new ToolTip();
-            toolTip1.AutoPopDelay = 60000;
-            toolTip1.InitialDelay = 350;
+            toolTip1.AutoPopDelay = 35000;
+            toolTip1.InitialDelay = 200;
             toolTip1.ReshowDelay = 500;
             toolTip1.ShowAlways = true;
             toolTip1.SetToolTip(this.button4, tooltip);
@@ -106,7 +111,16 @@ namespace WindowsFormsApplication1
             openFileDialog.FilterIndex = 2;
             openFileDialog.RestoreDirectory = true;
             openFileDialog.ShowDialog();
-            if (openFileDialog.FileName.Length > 0) { textBox1.Text = openFileDialog.FileName; readPathFlag = true; readFlag = false; }
+            if (openFileDialog.FileName.Length > 0) {
+                label3.Visible = true;
+                progressBar1.Visible = true;
+                textBox1.Text = openFileDialog.FileName; 
+                readPathFlag = true; readFlag = false;
+                progressBar1.Value = 0;
+                fileEntries = Directory.GetFiles(extractPath);
+                progressBar1.Maximum = fileEntries.Length;
+                backgroundWorker1.RunWorkerAsync();
+            }
             else MessageBox.Show("Выберите zip файл.");
         }
 
@@ -137,43 +151,6 @@ namespace WindowsFormsApplication1
             }
         }
 
-        private void button3_Click(object sender, EventArgs e)
-        {
-            if (readPathFlag)
-            {
-                try
-                {
-
-                    DirectoryInfo dirInfo = new DirectoryInfo(extractPath);
-                    foreach (FileInfo file in dirInfo.GetFiles())
-                    {
-                        file.Delete();
-                    }
-                    ZipFile.ExtractToDirectory(openFileDialog.FileName, extractPath);
-                    string tempDate;
-                    string[] tempWeatherFromStations;
-                    string[] fileEntries;
-                    wood = new List<weatherOfOneDay>();
-                    StreamReader sr;
-                    fileEntries = Directory.GetFiles(extractPath);
-                    foreach (string filename in fileEntries)
-                    {
-                        using (sr = new StreamReader(filename))
-                        {
-                            tempDate = sr.ReadLine();
-                            sr.ReadLine(); sr.ReadLine(); sr.ReadLine();
-                            tempWeatherFromStations = sr.ReadToEnd().ToString().Split('=');
-                            wood.Add(new weatherOfOneDay(tempDate, tempWeatherFromStations));
-                        }
-
-                    }
-                    readFlag = true;
-                    MessageBox.Show("Архив успешно прочитан.");
-                }
-                catch (Exception exc) { Console.Write(exc.ToString()); }
-            }
-            else MessageBox.Show("Выберите архив.");
-        }
 
         private void button4_Click(object sender, EventArgs e)
         {
@@ -235,9 +212,62 @@ namespace WindowsFormsApplication1
             }
             else
             {
-                MessageBox.Show("Выберите и прочитайте архив.");
+                MessageBox.Show("Выберите архив.");
             }
 
+        }
+
+        private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            try
+            {
+                DirectoryInfo dirInfo = new DirectoryInfo(extractPath);
+                foreach (FileInfo file in dirInfo.GetFiles())
+                {
+                    file.Delete();
+                }
+                ZipFile.ExtractToDirectory(openFileDialog.FileName, extractPath);
+                wood = new List<weatherOfOneDay>();
+                StreamReader sr;
+                fileEntries = Directory.GetFiles(extractPath);
+                foreach (string filename in fileEntries)
+                {
+                    backgroundWorker1.ReportProgress(0);
+                    using (sr = new StreamReader(filename))
+                    {
+                        tempDate = sr.ReadLine();
+                        sr.ReadLine(); sr.ReadLine(); sr.ReadLine();
+                        tempWeatherFromStations = sr.ReadToEnd().ToString().Split('=');
+                        wood.Add(new weatherOfOneDay(tempDate, tempWeatherFromStations));
+                    }
+
+                }
+                readFlag = true;
+                
+            }
+            catch (Exception exc) { 
+                Console.Write(exc.ToString());
+                backgroundWorker1.CancelAsync();
+            }
+        }
+
+        private void backgroundWorker1_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
+        {
+            progressBar1.PerformStep();
+        }
+
+        private void backgroundWorker1_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        {
+            if (e.Cancelled)
+            {
+                MessageBox.Show("Во время чтения возникла ошибка.");
+            }
+            else
+            {
+                MessageBox.Show("Архив успешно прочитан.");
+            }
+            label3.Visible = false;
+            progressBar1.Visible = false;
         }
     }
 }
