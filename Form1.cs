@@ -81,6 +81,7 @@ namespace WindowsFormsApplication1
 
         private void Form1_Load(object sender, EventArgs e)
         {
+
             if (errorFlag) closeAplication();
             progressBar1.Step = 1;
             ToolTip toolTip1 = new ToolTip();
