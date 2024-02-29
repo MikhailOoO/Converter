@@ -86,3 +86,5 @@ C:\Users\Mikhail\Desktop\KH-01 to CSV converter\Converter\obj\Debug\project.cspr
 C:\Users\Mikhail\Desktop\KH-01 to CSV converter\Converter\obj\Debug\project.csproj.CopyComplete
 C:\Users\Mikhail\Desktop\KH-01 to CSV converter\Converter\obj\Debug\WindowsFormsApplication1.exe
 C:\Users\Mikhail\Desktop\KH-01 to CSV converter\Converter\obj\Debug\WindowsFormsApplication1.pdb
+C:\Users\Mikhail\Desktop\KH-01 to CSV converter\Converter\bin\Debug\wmoCodes\meteostations.csv
+C:\Users\Mikhail\Desktop\KH-01 to CSV converter\Converter\bin\Debug\extract\file.txt

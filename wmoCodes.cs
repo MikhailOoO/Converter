@@ -7,7 +7,7 @@ namespace WindowsFormsApplication1
 {
     class wmoCodes
     {
-        private string path = @".\wmoCodes\meteostations.csv";
+        private string path = @"./wmoCodes/meteostations.csv";
         private List<regions> rgs { get; set; }
         public wmoCodes()
         {
