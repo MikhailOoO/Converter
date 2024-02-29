@@ -48,6 +48,7 @@ namespace WindowsFormsApplication1
         private string tempDate;
         private string[] tempWeatherFromStations;
         private string[] fileEntries;
+        int random = 0;
 
         private void closeAplication()
         {
@@ -113,14 +114,16 @@ namespace WindowsFormsApplication1
             openFileDialog.RestoreDirectory = true;
             openFileDialog.ShowDialog();
             if (openFileDialog.FileName.Length > 0) {
+                random = new Random().Next(100, 1000);
                 label3.Visible = true;
                 progressBar1.Visible = true;
                 textBox1.Text = openFileDialog.FileName; 
                 readPathFlag = true; readFlag = false;
                 progressBar1.Value = 0;
                 fileEntries = Directory.GetFiles(extractPath);
-                progressBar1.Maximum = fileEntries.Length;
+                progressBar1.Maximum = fileEntries.Length + random;
                 backgroundWorker1.RunWorkerAsync();
+                progressBar1.Value = random;
             }
             else MessageBox.Show("Выберите zip файл.");
         }
